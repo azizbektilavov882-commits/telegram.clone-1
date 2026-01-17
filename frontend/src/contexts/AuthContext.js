@@ -3,6 +3,9 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+// Configure axios base URL
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -30,6 +33,7 @@ export const AuthProvider = ({ children }) => {
       const response = await axios.get('/api/auth/me');
       setUser(response.data);
     } catch (error) {
+      console.error('Error fetching user:', error);
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['Authorization'];
     } finally {
@@ -37,9 +41,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (email, password) => {
+  const login = async (emailOrPhone, password) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await axios.post('/api/auth/login', { emailOrPhone, password });
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);

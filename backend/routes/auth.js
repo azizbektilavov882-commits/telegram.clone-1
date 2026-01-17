@@ -1,60 +1,80 @@
 const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
-const router = express.Router();
-
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, phoneNumber, password, firstName, lastName } = req.body;
+    const { username, email, phone, password } = req.body;
 
-    // Check if user exists
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and password required' });
+    }
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Build query conditions - only check fields that are provided
+    const conditions = [{ username }];
+    
+    if (email) {
+      conditions.push({ email });
+    }
+    
+    if (phone) {
+      conditions.push({ phone });
+    }
+
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }, { phoneNumber }]
+      $or: conditions
     });
 
     if (existingUser) {
-      return res.status(400).json({
-        message: 'User with this email, username or phone number already exists'
-      });
+      // Determine which field is duplicate
+      if (existingUser.username === username) {
+        return res.status(400).json({ message: 'Username already exists' });
+      }
+      if (existingUser.email === email) {
+        return res.status(400).json({ message: 'Email already exists' });
+      }
+      if (phone && existingUser.phone === phone) {
+        return res.status(400).json({ message: 'Phone number already exists' });
+      }
+      return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create user
+    // Don't hash password here - User model's pre-save hook will do it
     const user = new User({
       username,
       email,
-      phoneNumber,
-      password,
-      firstName,
-      lastName
+      phone: phone || undefined,
+      password // Plain password - will be hashed by pre-save hook
     });
 
     await user.save();
 
-    // Generate token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
       { expiresIn: '7d' }
     );
 
     res.status(201).json({
-      message: 'User created successfully',
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
-        phoneNumber: user.phoneNumber,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        avatar: user.avatar
+        phone: user.phone
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Register error:', error);
+    res.status(500).json({ message: 'Registration failed' });
   }
 });
 
@@ -62,51 +82,46 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { emailOrPhone, password } = req.body;
-
-    // Find user by email or phone number
-    const user = await User.findOne({
-      $or: [
-        { email: emailOrPhone },
-        { phoneNumber: emailOrPhone }
-      ]
-    });
     
+    console.log('Login attempt:', { emailOrPhone, password: password ? '***' : 'missing' });
+
+    if (!emailOrPhone || !password) {
+      console.log('Missing credentials');
+      return res.status(400).json({ message: 'Email/Phone and password required' });
+    }
+
+    const user = await User.findOne({
+      $or: [{ email: emailOrPhone }, { phone: emailOrPhone }, { username: emailOrPhone }]
+    });
+
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    // Update online status
-    user.isOnline = true;
-    await user.save();
-
-    // Generate token
     const token = jwt.sign(
       { userId: user._id },
-      process.env.JWT_SECRET || 'your-secret-key',
+      process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production',
       { expiresIn: '7d' }
     );
 
     res.json({
-      message: 'Login successful',
       token,
       user: {
-        id: user._id,
+        _id: user._id,
         username: user.username,
         email: user.email,
-        phoneNumber: user.phoneNumber,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        avatar: user.avatar
+        phone: user.phone
       }
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Login failed' });
   }
 });
 
@@ -116,7 +131,8 @@ router.get('/me', auth, async (req, res) => {
     const user = await User.findById(req.userId).select('-password');
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Failed to fetch user' });
   }
 });
 

@@ -59,7 +59,7 @@ const UserProfile = ({ onClose }) => {
       <div className="profile-content">
         <div className="profile-avatar-section">
           <div className="profile-avatar">
-            {user.firstName[0]}{user.lastName[0]}
+            {(user.firstName?.[0] || 'U')}{(user.lastName?.[0] || 'S')}
           </div>
           <button className="avatar-edit-btn">
             <FiEdit2 />
@@ -82,7 +82,7 @@ const UserProfile = ({ onClose }) => {
                 onChange={handleInputChange}
               />
             ) : (
-              <div className="field-value">{user.firstName}</div>
+              <div className="field-value">{user.firstName || 'Not set'}</div>
             )}
           </div>
 
@@ -99,7 +99,7 @@ const UserProfile = ({ onClose }) => {
                 onChange={handleInputChange}
               />
             ) : (
-              <div className="field-value">{user.lastName}</div>
+              <div className="field-value">{user.lastName || 'Not set'}</div>
             )}
           </div>
 

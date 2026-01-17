@@ -123,3 +123,60 @@
   box-shadow: var(--tg-shadow-lg);
   transition: var(--transition);
 }
+
+/* File message styles */
+.message-file {
+  margin-bottom: 8px;
+}
+
+.message-image {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: block;
+}
+
+.message-file-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--tg-text-primary);
+  transition: var(--transition);
+}
+
+.message-file-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.message-file-link svg {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.file-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.file-size {
+  font-size: 12px;
+  color: var(--tg-text-muted);
+}
+
+.edited-indicator {
+  font-size: 11px;
+  color: var(--tg-text-muted);
+  font-style: italic;
+  margin-left: 4px;
+}

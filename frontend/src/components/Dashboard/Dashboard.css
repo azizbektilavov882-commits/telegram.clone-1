@@ -1,13 +1,16 @@
 .dashboard {
   display: flex;
   height: 100vh;
-  background: #f0f2f5;
+  background: var(--tg-bg-primary);
+  overflow: hidden;
 }
 
 .dashboard-main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: var(--tg-bg-chat);
+  position: relative;
 }
 
 .dashboard-loading {
@@ -16,7 +19,8 @@
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #0088cc;
+  color: var(--tg-text-accent);
+  background: var(--tg-bg-primary);
 }
 
 .no-chat-selected {
@@ -24,19 +28,40 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  background: var(--tg-bg-chat);
+  position: relative;
+}
+
+.no-chat-selected::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .no-chat-content {
   text-align: center;
-  color: #666;
+  color: var(--tg-text-secondary);
+  position: relative;
+  z-index: 1;
 }
 
 .no-chat-content h2 {
   margin-bottom: 10px;
-  color: #333;
+  color: var(--tg-text-primary);
+  font-size: 24px;
+  font-weight: 500;
 }
 
 .no-chat-content p {
   font-size: 16px;
+  color: var(--tg-text-muted);
 }

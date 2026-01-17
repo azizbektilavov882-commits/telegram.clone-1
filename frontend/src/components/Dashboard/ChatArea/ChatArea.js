@@ -18,8 +18,23 @@ const ChatArea = ({ chat, onMessageSent }) => {
   useEffect(() => {
     if (chat) {
       fetchMessages();
+      markMessagesAsRead();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat]);
+
+  // Mark messages as read when chat is opened
+  useEffect(() => {
+    if (chat && messages.length > 0) {
+      const unreadMessages = messages.filter(msg => 
+        !msg.isRead && msg.sender._id !== user._id
+      );
+      if (unreadMessages.length > 0) {
+        markMessagesAsRead();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, chat]);
 
   useEffect(() => {
     scrollToBottom();
@@ -35,6 +50,7 @@ const ChatArea = ({ chat, onMessageSent }) => {
         socket.off('userTyping', handleUserTyping);
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, chat]);
 
   const fetchMessages = async () => {
@@ -52,11 +68,45 @@ const ChatArea = ({ chat, onMessageSent }) => {
   const handleNewMessage = (messageData) => {
     if (messageData.chatId === chat._id) {
       setMessages(prev => [...prev, messageData]);
+      // Mark as read if message is from other user
+      if (messageData.sender._id !== user._id) {
+        markMessageAsRead(messageData._id);
+      }
+    }
+  };
+
+  const markMessagesAsRead = async () => {
+    if (!chat) return;
+    try {
+      const unreadMessages = messages.filter(msg => 
+        !msg.isRead && msg.sender._id !== user._id
+      );
+      for (const msg of unreadMessages) {
+        await markMessageAsRead(msg._id);
+      }
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
+
+  const markMessageAsRead = async (messageId) => {
+    try {
+      await axios.put(`/api/chat/${chat._id}/messages/${messageId}/read`);
+      setMessages(prev => prev.map(msg => 
+        msg._id === messageId ? { ...msg, isRead: true } : msg
+      ));
+      
+      // Emit read receipt via socket
+      if (socket) {
+        socket.emit('messageRead', { chatId: chat._id, messageId });
+      }
+    } catch (error) {
+      console.error('Error marking message as read:', error);
     }
   };
 
   const handleUserTyping = (data) => {
-    if (data.userId !== user.id) {
+    if (data.userId !== user._id) {
       setTyping(data.isTyping);
       if (data.isTyping) {
         setTimeout(() => setTyping(false), 3000);
@@ -64,10 +114,10 @@ const ChatArea = ({ chat, onMessageSent }) => {
     }
   };
 
-  const handleSendMessage = async (content, messageType = 'text') => {
+  const handleSendMessage = async (text, messageType = 'text') => {
     try {
       const response = await axios.post(`/api/chat/${chat._id}/messages`, {
-        content,
+        text,
         messageType
       });
 
@@ -77,7 +127,7 @@ const ChatArea = ({ chat, onMessageSent }) => {
 
       // Emit socket event
       if (socket) {
-        const otherParticipant = chat.participants.find(p => p._id !== user.id);
+        const otherParticipant = chat.participants.find(p => p._id !== user._id);
         socket.emit('sendMessage', {
           ...newMessage,
           chatId: chat._id,
@@ -91,7 +141,7 @@ const ChatArea = ({ chat, onMessageSent }) => {
 
   const handleTyping = (isTyping) => {
     if (socket) {
-      const otherParticipant = chat.participants.find(p => p._id !== user.id);
+      const otherParticipant = chat.participants.find(p => p._id !== user._id);
       socket.emit('typing', {
         recipientId: otherParticipant._id,
         isTyping
@@ -112,7 +162,7 @@ const ChatArea = ({ chat, onMessageSent }) => {
       };
     }
 
-    const otherParticipant = chat.participants.find(p => p._id !== user.id);
+    const otherParticipant = chat.participants.find(p => p._id !== user._id);
     return {
       name: `${otherParticipant?.firstName} ${otherParticipant?.lastName}`,
       avatar: `${otherParticipant?.firstName[0]}${otherParticipant?.lastName[0]}`,
@@ -128,13 +178,21 @@ const ChatArea = ({ chat, onMessageSent }) => {
     );
   }
 
+  if (!chat) {
+    return (
+      <div className="chat-area">
+        <div className="chat-loading">Select a chat to start messaging</div>
+      </div>
+    );
+  }
+
   return (
     <div className="chat-area">
       <ChatHeader chatInfo={getChatInfo()} />
       
       <MessageList 
         messages={messages}
-        currentUserId={user.id}
+        currentUserId={user._id}
         typing={typing}
       />
       
@@ -143,6 +201,7 @@ const ChatArea = ({ chat, onMessageSent }) => {
       <MessageInput 
         onSendMessage={handleSendMessage}
         onTyping={handleTyping}
+        chatId={chat._id}
       />
     </div>
   );

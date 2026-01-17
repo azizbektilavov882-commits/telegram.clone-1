@@ -2,7 +2,7 @@ import React from 'react';
 import { useSocket } from '../../../contexts/SocketContext';
 import './ChatList.css';
 
-const ChatList = ({ chats, activeChat, onChatSelect, currentUserId }) => {
+const ChatList = ({ chats = [], activeChat, onChatSelect, currentUserId }) => {
   const { onlineUsers } = useSocket();
 
   const formatTime = (date) => {
@@ -30,15 +30,15 @@ const ChatList = ({ chats, activeChat, onChatSelect, currentUserId }) => {
     if (chat.isGroup) {
       return {
         name: chat.groupName,
-        avatar: chat.groupAvatar || chat.groupName[0],
+        avatar: chat.groupAvatar || (chat.groupName?.[0] || 'G'),
         isOnline: false
       };
     }
 
     const otherParticipant = chat.participants.find(p => p._id !== currentUserId);
     return {
-      name: `${otherParticipant?.firstName} ${otherParticipant?.lastName}`,
-      avatar: `${otherParticipant?.firstName[0]}${otherParticipant?.lastName[0]}`,
+      name: `${otherParticipant?.firstName || 'User'} ${otherParticipant?.lastName || 'Name'}`,
+      avatar: `${(otherParticipant?.firstName?.[0] || 'U')}${(otherParticipant?.lastName?.[0] || 'S')}`,
       isOnline: onlineUsers.has(otherParticipant?._id)
     };
   };
@@ -74,8 +74,8 @@ const ChatList = ({ chats, activeChat, onChatSelect, currentUserId }) => {
               
               {chat.lastMessage && (
                 <div className="chat-last-message">
-                  {chat.lastMessage.sender === currentUserId ? 'You: ' : ''}
-                  {chat.lastMessage.content}
+                  {chat.lastMessage.sender._id === currentUserId ? 'You: ' : ''}
+                  {chat.lastMessage.text}
                 </div>
               )}
             </div>

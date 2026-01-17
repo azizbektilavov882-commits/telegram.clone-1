@@ -18,9 +18,10 @@ const Dashboard = () => {
   const fetchChats = async () => {
     try {
       const response = await axios.get('/api/chat');
-      setChats(response.data);
+      setChats(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching chats:', error);
+      setChats([]);
     } finally {
       setLoading(false);
     }

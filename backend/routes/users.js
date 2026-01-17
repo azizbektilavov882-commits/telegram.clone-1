@@ -1,54 +1,56 @@
 const express = require('express');
+const router = express.Router();
 const User = require('../models/User');
 const auth = require('../middleware/auth');
-
-const router = express.Router();
 
 // Search users
 router.get('/search', auth, async (req, res) => {
   try {
-    const { query } = req.query;
-    
+    const { q } = req.query;
+
+    if (!q || q.length < 2) {
+      return res.json([]);
+    }
+
     const users = await User.find({
       $and: [
         { _id: { $ne: req.userId } },
         {
           $or: [
-            { username: { $regex: query, $options: 'i' } },
-            { firstName: { $regex: query, $options: 'i' } },
-            { lastName: { $regex: query, $options: 'i' } },
-            { email: { $regex: query, $options: 'i' } },
-            { phoneNumber: { $regex: query, $options: 'i' } }
+            { username: { $regex: q, $options: 'i' } },
+            { email: { $regex: q, $options: 'i' } },
+            { phone: { $regex: q, $options: 'i' } }
           ]
         }
       ]
     })
-    .select('username firstName lastName phoneNumber avatar isOnline lastSeen')
-    .limit(20);
+      .select('_id username email phone')
+      .limit(10);
 
     res.json(users);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Search users error:', error);
+    res.status(500).json({ message: 'Search failed' });
   }
 });
 
-// Get user profile
+// Get user by ID
 router.get('/:userId', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId)
-      .select('username firstName lastName phoneNumber avatar bio isOnline lastSeen');
-    
+    const user = await User.findById(req.params.userId).select('-password');
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Failed to fetch user' });
   }
 });
 
-// Update profile
+// Update user profile
 router.put('/profile', auth, async (req, res) => {
   try {
     const { firstName, lastName, bio } = req.body;
@@ -61,7 +63,8 @@ router.put('/profile', auth, async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Failed to update profile' });
   }
 });
 

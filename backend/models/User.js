@@ -16,10 +16,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true
   },
-  phoneNumber: {
+  phone: {
     type: String,
-    required: true,
     unique: true,
+    sparse: true,
     trim: true
   },
   password: {
@@ -29,13 +29,13 @@ const userSchema = new mongoose.Schema({
   },
   firstName: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   lastName: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   avatar: {
     type: String,

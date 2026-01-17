@@ -8,35 +8,36 @@ const SearchUsers = ({ onUserSelect, onClose }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const searchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/users/search?q=${query}`);
+      setUsers(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (query.trim()) {
       searchUsers();
     } else {
       setUsers([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
-
-  const searchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`/api/users/search?query=${query}`);
-      setUsers(response.data);
-    } catch (error) {
-      console.error('Error searching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUserSelect = async (user) => {
     try {
-      const response = await axios.post('/api/chat/create', {
-        participantId: user._id
-      });
+      const response = await axios.post('/api/chat/with/' + user._id);
       onUserSelect(response.data);
       onClose();
     } catch (error) {
       console.error('Error creating chat:', error);
+      alert('Error creating chat. Please try again.');
     }
   };
 
@@ -70,11 +71,11 @@ const SearchUsers = ({ onUserSelect, onClose }) => {
             onClick={() => handleUserSelect(user)}
           >
             <div className="user-avatar">
-              {user.firstName[0]}{user.lastName[0]}
+              {(user.firstName?.[0] || 'U')}{(user.lastName?.[0] || 'S')}
             </div>
             <div className="user-details">
               <div className="user-name">
-                {user.firstName} {user.lastName}
+                {user.firstName || 'User'} {user.lastName || 'Name'}
               </div>
               <div className="user-username">@{user.username}</div>
             </div>

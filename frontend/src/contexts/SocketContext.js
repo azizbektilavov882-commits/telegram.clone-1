@@ -19,10 +19,12 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const newSocket = io('http://localhost:5000');
+      // Use relative path when served from same port, otherwise use env var
+      const socketUrl = process.env.REACT_APP_SOCKET_URL || window.location.origin;
+      const newSocket = io(socketUrl);
       setSocket(newSocket);
 
-      newSocket.emit('join', user.id);
+      newSocket.emit('join', user._id);
 
       newSocket.on('userOnline', (userId) => {
         setOnlineUsers(prev => new Set([...prev, userId]));

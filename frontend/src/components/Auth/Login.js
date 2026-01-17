@@ -50,10 +50,10 @@ const Login = () => {
           
           <div className="form-group">
             <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
+              type="text"
+              name="emailOrPhone"
+              placeholder="Email or Phone Number"
+              value={formData.emailOrPhone}
               onChange={handleChange}
               required
             />

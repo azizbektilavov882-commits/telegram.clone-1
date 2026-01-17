@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  content: {
+  text: {
     type: String,
     required: true
   },
@@ -17,11 +17,25 @@ const messageSchema = new mongoose.Schema({
   },
   fileUrl: String,
   fileName: String,
-  isRead: {
+  fileSize: Number,
+  replyTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Message'
+  },
+  readBy: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    readAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  edited: {
     type: Boolean,
     default: false
   },
-  readAt: Date,
   editedAt: Date,
   isDeleted: {
     type: Boolean,

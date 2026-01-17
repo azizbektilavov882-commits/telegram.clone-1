@@ -2,7 +2,7 @@ import React from 'react';
 import Message from './Message';
 import './MessageList.css';
 
-const MessageList = ({ messages, currentUserId, typing }) => {
+const MessageList = ({ messages = [], currentUserId, typing }) => {
   const formatDate = (date) => {
     const messageDate = new Date(date);
     const today = new Date();

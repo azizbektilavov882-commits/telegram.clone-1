@@ -1,9 +1,14 @@
 .search-users {
-  background: white;
-  border-bottom: 1px solid #e1e5e9;
-  max-height: 400px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #232e3c;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .search-header {
@@ -11,14 +16,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #e1e5e9;
+  border-bottom: 1px solid #2f3a4a;
+  background: #232e3c;
 }
 
 .search-header h3 {
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #ffffff;
 }
 
 .close-btn {
@@ -31,16 +37,18 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #666;
+  color: #aaaaaa;
 }
 
 .close-btn:hover {
-  background: #f0f2f5;
+  background: #17212b;
+  color: #ffffff;
 }
 
 .search-input-container {
   position: relative;
   padding: 16px;
+  background: #232e3c;
 }
 
 .search-icon {
@@ -48,35 +56,41 @@
   left: 28px;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
+  color: #aaaaaa;
   font-size: 16px;
+  z-index: 10;
 }
 
 .search-input-container input {
   width: 100%;
   padding: 10px 16px 10px 40px;
-  border: 1px solid #e1e5e9;
+  border: 1px solid #40526d;
   border-radius: 20px;
   font-size: 14px;
   outline: none;
-  background: #f0f2f5;
+  background: #40526d;
+  color: #ffffff;
+}
+
+.search-input-container input::placeholder {
+  color: #aaaaaa;
 }
 
 .search-input-container input:focus {
-  border-color: #0088cc;
-  background: white;
+  border-color: #5288c1;
+  background: #17212b;
 }
 
 .search-results {
   flex: 1;
   overflow-y: auto;
-  max-height: 300px;
+  background: #232e3c;
 }
 
 .search-loading {
   padding: 20px;
   text-align: center;
-  color: #666;
+  color: #aaaaaa;
   font-size: 14px;
 }
 
@@ -85,26 +99,28 @@
   align-items: center;
   padding: 12px 16px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.15s ease;
   position: relative;
+  background: #232e3c;
 }
 
 .user-item:hover {
-  background: #f0f2f5;
+  background: #17212b;
 }
 
 .user-item .user-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #0088cc;
-  color: white;
+  background: #5288c1;
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   font-size: 14px;
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
 .user-details {
@@ -113,12 +129,12 @@
 
 .user-name {
   font-weight: 500;
-  color: #333;
+  color: #ffffff;
   font-size: 14px;
 }
 
 .user-username {
-  color: #666;
+  color: #aaaaaa;
   font-size: 13px;
   margin-top: 2px;
 }
@@ -126,14 +142,14 @@
 .online-indicator {
   width: 8px;
   height: 8px;
-  background: #4caf50;
+  background: #4dcd5e;
   border-radius: 50%;
-  border: 2px solid white;
+  border: 2px solid #232e3c;
 }
 
 .no-results {
   padding: 20px;
   text-align: center;
-  color: #666;
+  color: #aaaaaa;
   font-size: 14px;
 }
