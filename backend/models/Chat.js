@@ -22,6 +22,43 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Message'
   },
+  // Message Reactions
+  reactions: [{
+    emoji: {
+      type: String,
+      required: true
+    },
+    users: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
+    count: {
+      type: Number,
+      default: 0
+    }
+  }],
+  // Message Forwarding
+  forwardedFrom: {
+    chat: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Chat'
+    },
+    originalSender: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    originalDate: Date
+  },
+  // Message Pinning
+  isPinned: {
+    type: Boolean,
+    default: false
+  },
+  pinnedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  pinnedAt: Date,
   readBy: [{
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -69,7 +106,28 @@ const chatSchema = new mongoose.Schema({
   lastActivity: {
     type: Date,
     default: Date.now
-  }
+  },
+  // Pinned Messages
+  pinnedMessages: [{
+    type: mongoose.Schema.Types.ObjectId
+  }],
+  // Chat Theme
+  theme: {
+    type: String,
+    enum: ['default', 'dark', 'blue', 'green', 'purple', 'red'],
+    default: 'default'
+  },
+  // Typing Indicators
+  typingUsers: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    lastTyping: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

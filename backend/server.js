@@ -94,32 +94,116 @@ io.on('connection', (socket) => {
     io.emit('userOnline', userId);
   });
 
+  socket.on('joinChat', (chatId) => {
+    socket.join(chatId);
+    console.log(`User ${socket.userId} joined chat ${chatId}`);
+  });
+
+  socket.on('leaveChat', (chatId) => {
+    socket.leave(chatId);
+    console.log(`User ${socket.userId} left chat ${chatId}`);
+  });
+
   socket.on('sendMessage', (messageData) => {
-    const recipientSocketId = activeUsers.get(messageData.recipientId);
-    if (recipientSocketId) {
-      io.to(recipientSocketId).emit('newMessage', messageData);
+    if (messageData.isGroup) {
+      // Send to all participants in group chat
+      socket.to(messageData.chatId).emit('newMessage', messageData);
+    } else {
+      // Send to specific recipient for 1-to-1 chat
+      const recipientSocketId = activeUsers.get(messageData.recipientId);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit('newMessage', messageData);
+      }
     }
     socket.emit('messageSent', messageData);
   });
 
   socket.on('typing', (data) => {
-    const recipientSocketId = activeUsers.get(data.recipientId);
-    if (recipientSocketId) {
-      io.to(recipientSocketId).emit('userTyping', {
+    if (data.isGroup) {
+      // Broadcast typing to all group members except sender
+      socket.to(data.chatId).emit('userTyping', {
         userId: socket.userId,
-        isTyping: data.isTyping
+        isTyping: data.isTyping,
+        chatId: data.chatId
       });
+    } else {
+      // Send typing to specific recipient
+      const recipientSocketId = activeUsers.get(data.recipientId);
+      if (recipientSocketId) {
+        io.to(recipientSocketId).emit('userTyping', {
+          userId: socket.userId,
+          isTyping: data.isTyping
+        });
+      }
     }
   });
 
   socket.on('messageRead', (data) => {
-    const senderSocketId = activeUsers.get(data.senderId);
-    if (senderSocketId) {
-      io.to(senderSocketId).emit('messageReadReceipt', {
+    if (data.isGroup) {
+      // Broadcast read receipt to all group members
+      socket.to(data.chatId).emit('messageReadReceipt', {
         chatId: data.chatId,
-        messageId: data.messageId
+        messageId: data.messageId,
+        readBy: socket.userId
       });
+    } else {
+      // Send read receipt to message sender
+      const senderSocketId = activeUsers.get(data.senderId);
+      if (senderSocketId) {
+        io.to(senderSocketId).emit('messageReadReceipt', {
+          chatId: data.chatId,
+          messageId: data.messageId
+        });
+      }
     }
+  });
+
+  // Message Reactions
+  socket.on('messageReaction', (data) => {
+    socket.to(data.chatId).emit('messageReactionUpdate', {
+      chatId: data.chatId,
+      messageId: data.messageId,
+      reactions: data.reactions,
+      userId: socket.userId
+    });
+  });
+
+  // Message Pinning
+  socket.on('messagePin', (data) => {
+    socket.to(data.chatId).emit('messagePinUpdate', {
+      chatId: data.chatId,
+      messageId: data.messageId,
+      isPinned: data.isPinned,
+      pinnedBy: socket.userId
+    });
+  });
+
+  // Message Forwarding
+  socket.on('messageForward', (data) => {
+    data.targetChatIds.forEach(chatId => {
+      socket.to(chatId).emit('newMessage', {
+        ...data.message,
+        chatId: chatId
+      });
+    });
+  });
+
+  // Online Status Update
+  socket.on('statusUpdate', (data) => {
+    io.emit('userStatusUpdate', {
+      userId: socket.userId,
+      onlineStatus: data.onlineStatus,
+      lastSeen: new Date()
+    });
+  });
+
+  // Chat Theme Update
+  socket.on('themeUpdate', (data) => {
+    socket.to(data.chatId).emit('chatThemeUpdate', {
+      chatId: data.chatId,
+      theme: data.theme,
+      updatedBy: socket.userId
+    });
   });
 
   socket.on('disconnect', () => {

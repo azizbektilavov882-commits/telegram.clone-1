@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema({
     maxlength: 200,
     default: ''
   },
+  // Online Status
   isOnline: {
     type: Boolean,
     default: false
@@ -53,6 +54,27 @@ const userSchema = new mongoose.Schema({
   lastSeen: {
     type: Date,
     default: Date.now
+  },
+  onlineStatus: {
+    type: String,
+    enum: ['online', 'offline', 'away', 'busy'],
+    default: 'offline'
+  },
+  // User Preferences
+  preferences: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark', 'auto'],
+      default: 'light'
+    },
+    language: {
+      type: String,
+      default: 'uz'
+    },
+    notifications: {
+      type: Boolean,
+      default: true
+    }
   },
   contacts: [{
     type: mongoose.Schema.Types.ObjectId,

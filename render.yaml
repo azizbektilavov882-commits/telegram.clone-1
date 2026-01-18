@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: telegram-clone
+    env: node
+    plan: free
+    buildCommand: npm install && cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        value: mongodb+srv://tilavovazizbek37_db_user:aevOGZSOsR80bbAO@cluster0.uzczovb.mongodb.net/?appName=Cluster0
+      - key: JWT_SECRET
+        value: telegram-clone-secret-key-2024-render-production
+      - key: FRONTEND_URL
+        value: https://telegram-clone-aziz.onrender.com

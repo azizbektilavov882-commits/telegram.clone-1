@@ -2,7 +2,14 @@ import React from 'react';
 import Message from './Message';
 import './MessageList.css';
 
-const MessageList = ({ messages = [], currentUserId, typing }) => {
+const MessageList = ({ 
+  messages = [], 
+  currentUserId, 
+  currentUser,
+  onReaction,
+  onPin,
+  onForward
+}) => {
   const formatDate = (date) => {
     const messageDate = new Date(date);
     const today = new Date();
@@ -44,20 +51,13 @@ const MessageList = ({ messages = [], currentUserId, typing }) => {
           <Message 
             message={message}
             isOwn={message.sender._id === currentUserId}
+            currentUser={currentUser}
+            onReaction={onReaction}
+            onPin={onPin}
+            onForward={onForward}
           />
         </React.Fragment>
       ))}
-      
-      {typing && (
-        <div className="typing-indicator">
-          <div className="typing-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <span className="typing-text">typing...</span>
-        </div>
-      )}
     </div>
   );
 };
