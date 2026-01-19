@@ -17,7 +17,7 @@ const CreateGroup = ({ onClose, onGroupCreated }) => {
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery]);
+  }, [searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const searchUsers = async () => {
     try {

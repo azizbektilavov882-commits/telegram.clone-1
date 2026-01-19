@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiPalette, FiCheck } from 'react-icons/fi';
+import { FiSettings, FiCheck } from 'react-icons/fi';
 import './ThemeSelector.css';
 
 const ThemeSelector = ({ currentTheme, onThemeChange }) => {
@@ -25,7 +25,7 @@ const ThemeSelector = ({ currentTheme, onThemeChange }) => {
         className="theme-selector-btn"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <FiPalette />
+        <FiSettings />
         <span>Theme</span>
       </button>
 

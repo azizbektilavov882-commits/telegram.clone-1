@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiCheck, FiCheckCircle, FiDownload, FiImage, FiMoreVertical, FiPin, FiShare2, FiSmile } from 'react-icons/fi';
+import { FiCheck, FiCheckCircle, FiDownload, FiMoreVertical, FiBookmark, FiShare2, FiSmile } from 'react-icons/fi';
 import './Message.css';
 
 const Message = ({ message, isOwn, onEdit, onDelete, onReaction, onPin, onForward, currentUser }) => {
@@ -76,7 +76,7 @@ const Message = ({ message, isOwn, onEdit, onDelete, onReaction, onPin, onForwar
         {/* Pinned Message Indicator */}
         {message.isPinned && (
           <div className="pinned-indicator">
-            <FiPin size={12} />
+            <FiBookmark size={12} />
             <span>Pinned</span>
           </div>
         )}
@@ -183,7 +183,7 @@ const Message = ({ message, isOwn, onEdit, onDelete, onReaction, onPin, onForwar
             {showActions && (
               <div className="actions-menu">
                 <button onClick={handlePin}>
-                  <FiPin size={14} />
+                  <FiBookmark size={14} />
                   {message.isPinned ? 'Unpin' : 'Pin'}
                 </button>
                 <button onClick={handleForward}>

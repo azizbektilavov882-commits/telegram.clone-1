@@ -1,13 +1,72 @@
+/* Loading Screen */
 .loading {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  font-size: 18px;
-  color: #0088cc;
+  background: var(--tg-bg-primary);
+  color: var(--tg-text-primary);
+  gap: var(--spacing);
 }
 
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top: 3px solid var(--tg-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--tg-text-secondary);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Main App Container */
 .app {
   height: 100vh;
   display: flex;
+  background: var(--tg-bg-primary);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+}
+
+/* App-wide animations */
+.app * {
+  transition: var(--transition);
+}
+
+/* Focus management for accessibility */
+.app:focus-within {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --tg-bg-primary: #000000;
+    --tg-bg-secondary: #1a1a1a;
+    --tg-text-primary: #ffffff;
+    --tg-border: #666666;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

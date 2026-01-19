@@ -6,7 +6,6 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import ForwardModal from './ForwardModal';
 import TypingIndicator from './TypingIndicator';
-import ThemeSelector from '../ThemeSelector/ThemeSelector';
 import axios from 'axios';
 import './ChatArea.css';
 
